@@ -119,11 +119,19 @@ const getShowTimes = async (req: Request, res: Response) => {
 
     const showTimeForMovies = req.params.movie as string
     try {
-        const movieFound = await Movie.findOne({ title: showTimeForMovies })
-        const showTimes = await ShowTime.find({ movie: movieFound })
+    
+       //console.log("the movie we got is "+movieFound.title)
+
+
+        const showTimes = await ShowTime.find({ 'movie.title': showTimeForMovies })
         if (!showTimes)
             return res.status(200).json({ msg: "there is no showtime yet" })
+
+        //console.log("the lenght of the showtime at fn get show times "+showTimes.length)
+
         const validShowsWeHave = validShows(showTimes)
+        if(validShowsWeHave.length === 0)
+            console.log("not found any showtimes")
 
         res.status(200).json({ msg: "got all showTimes sucessfully", validShowsWeHave })
 
@@ -132,8 +140,6 @@ const getShowTimes = async (req: Request, res: Response) => {
         console.log("there is an error in the server from the getShowTimes fn and th error is " + err)
         res.status(500).json({ msg: "sorryy errrorr from the server :(" })
     }
-
-
 
 }
 
@@ -255,9 +261,10 @@ const getBookingHistory = async (req: Request, res: Response) => {
 
 const validShows = (shows: any[]) => {
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
+
     const validShowTimes = shows.filter(
-        (showTime) => showTime.date >= today
+        (showTime) => {
+           return showTime.date >= today}
     );
     return validShowTimes
 }

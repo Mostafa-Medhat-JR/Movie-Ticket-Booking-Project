@@ -59,12 +59,11 @@ const removeMovie = async (req: Request, res: Response) => {
 const addShowTime = async (req: Request, res: Response) => {
 
     const showtimeBody = req.body
-    const date:Date= new Date(req.body.date) 
-    date.setHours(0,0,0,0)
+
 
     try {
          const showtimeId: number = await ShowTime.countDocuments() + 1
-        const showTimeCreated = await ShowTime.create({ showTimeID: showtimeId, ...showtimeBody,date:date})
+        const showTimeCreated = await ShowTime.create({ showTimeID: showtimeId, ...showtimeBody})
         res.status(201).json({ msg: "the show time has been created sucessfully ", showTimeCreated })
     } catch (err) {
         console.log("there is an error in the server from the addShowTime in the admin controller fn and th error is " + err)
@@ -80,7 +79,7 @@ const manageShowTime = async (req: Request, res: Response) => {
     const showTimeBody = req.body
 
     try {
-        const showTimeFound = await ShowTime.findOneAndUpdate({ showTimeID: showTimeId }, { $set: showTimeBody }, { new: true, runValidators: true })
+        const showTimeFound = await ShowTime.findOneAndUpdate({ showTimeID: showTimeId }, { $set: showTimeBody }, {returnDocument: "after" , runValidators: true })
 
         if (!showTimeFound)
             return res.status(404).json({ msg: "cannot find showTime that no of hallno" })
