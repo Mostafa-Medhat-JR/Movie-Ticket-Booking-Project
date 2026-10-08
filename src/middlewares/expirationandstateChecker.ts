@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from "express";
-import jwt from "jsonwebtoken"
 import { ShowTime } from "../models/showingtime.model";
 import "dotenv/config"
 import { Movie } from "../models/movie.model";
@@ -10,6 +9,10 @@ const showTimeExpiration = async (req: Request, res: Response, next: NextFunctio
     const showTimeSelected = Number(req.params.id)
     try {
         const show = await ShowTime.findOne({ showTimeID: showTimeSelected })
+        if (!show)
+            return res.status(404).json({ msg: "there is no show time with this id" })
+
+
         if (!validShows(show))
             return res.status(404).json({ msg: "date of the showtime has expired" })
 
@@ -30,8 +33,8 @@ const checkMovie = async (req: Request, res: Response, next: NextFunction) => {
 
     try {
         const movieName = req.params.movie as string
-
         const selectedMovie = await Movie.findOne({ title: movieName })
+
         if (!selectedMovie)
             return res.status(404).json({ msg: "movie not found" })
 
@@ -50,12 +53,11 @@ const checkMovie = async (req: Request, res: Response, next: NextFunction) => {
 
 }
 
-const validShows = (shows: any) => {
+const validShows = (show: any) => {
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    return show.date >= today
 
-    return shows.data >= today
 }
 
 
-export { showTimeExpiration ,checkMovie }
+export { showTimeExpiration, checkMovie }

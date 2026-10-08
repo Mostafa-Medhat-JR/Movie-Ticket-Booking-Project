@@ -19,7 +19,7 @@ export const seatsInCinema: string[] = [
     "I1", "I2", "I3", "I4", "I5", "I6", "I7", "I8", "I9", "I10", "I11", "I12",
     "J1", "J2", "J3", "J4", "J5", "J6", "J7", "J8", "J9", "J10", "J11", "J12"
 ]
- 
+
 
 const createToken = (email: string, role: string) => {
     return jwt.sign({
@@ -38,7 +38,7 @@ const signiUp = async (req: Request, res: Response) => {
         return res.status(400).json({ msg: "there is missing data in email or pass or name" })
 
     try {
-        const user = await User.findOne({email})
+        const user = await User.findOne({ email })
         if (user) {
             return res.status(400).json({ msg: "email already exsit" })
 
@@ -69,9 +69,9 @@ const signIn = async (req: Request, res: Response) => {
 
 
     try {
-      
-        const user = await User.findOne({email})
-  
+
+        const user = await User.findOne({ email })
+
 
         if (!user)
             return res.status(400).json({ msg: "the user not exsited" })
@@ -119,8 +119,8 @@ const getShowTimes = async (req: Request, res: Response) => {
 
     const showTimeForMovies = req.params.movie as string
     try {
-    
-       //console.log("the movie we got is "+movieFound.title)
+
+        //console.log("the movie we got is "+movieFound.title)
 
 
         const showTimes = await ShowTime.find({ 'movie.title': showTimeForMovies })
@@ -130,8 +130,9 @@ const getShowTimes = async (req: Request, res: Response) => {
         //console.log("the lenght of the showtime at fn get show times "+showTimes.length)
 
         const validShowsWeHave = validShows(showTimes)
-        if(validShowsWeHave.length === 0)
-            console.log("not found any showtimes")
+
+        if (validShowsWeHave.length === 0)
+            return res.status(404).json({ "msg": "no avaliable showtimes for this movie" })
 
         res.status(200).json({ msg: "got all showTimes sucessfully", validShowsWeHave })
 
@@ -158,6 +159,11 @@ const availableSeats = async (req: Request, res: Response) => {
             .filter(([seat, available]) => available === true)
             .map(([seat]) => seat);
 
+
+        if (availableSeats.length === 0)
+            return res.status(404).json({ msg: "there is no avaliable seats" })
+
+
         res.status(200).json({ msg: "got all the availibale seats", availableSeats })
 
     } catch (err) {
@@ -179,14 +185,16 @@ const bookingTicket = async (req: Request, res: Response) => {
     const showTimeId = Number(req.params.id)
 
     try {
-        
+
         const showTimeSelected = await ShowTime.findOne({ showTimeID: showTimeId })
 
         if (!showTimeSelected)
             return res.status(400).json({ msg: "couldnot showtime pla enter a right hall number" })
 
-        const token = req.cookies?.token as { email: string, role: string }
-        const customerData = await User.findOne({ email: token.email })
+        const token = req.cookies?.token
+        const tokenCanBeAcessed = jwt.verify(token, process.env.secret as string) as { email: string, role: string }
+
+        const customerData = await User.findOne({ email: tokenCanBeAcessed.email })
 
         const selectedSeats = req.body.selectedSeats
 
@@ -226,21 +234,31 @@ const bookingTicket = async (req: Request, res: Response) => {
 const getBookingHistory = async (req: Request, res: Response) => {
 
     const token = req.cookies?.token as { email: string, role: string }
-    const customer = await User.findOne({ email: token.email })
 
+    if (!token) {
+        return res.status(401).json({ msg: "No token found in cookies" });
+    }
     try {
-        const bookedShowtimes = await Bookings.find({ customer: customer })
+
+
+        const tokenCanBeAcessed = jwt.verify(req.cookies?.token, process.env.secret as string) as { email: string, role: string }
+
+        const customer = await User.findOne({ email: tokenCanBeAcessed.email })
+
+        if (!customer)
+            return res.status(404).json({ msg: "can't find user with this " })
+
+        const bookedShowtimes = await Bookings.find({ 'customer.email': customer?.email })
 
         if (bookedShowtimes.length === 0)
-            return res.status(400).json({ msg: "there is no booking fore this customer" })
+            return res.status(404).json({ msg: "there is no booking for this customer" })
 
         const secureBooked = bookedShowtimes.map((booking) => ({
 
             customer: {
-                name: booking.customer?.name,
-                email: booking.customer?.email
+                name: booking.customer?.name
             },
-            showtimeId:booking.showtimeId,
+            showtimeId: booking.showtimeId,
             selectedSeats: booking.selectedSeats,
             totalPrice: booking.totalPrice,
             bookingStatus: booking.bookingStatus
@@ -264,7 +282,8 @@ const validShows = (shows: any[]) => {
 
     const validShowTimes = shows.filter(
         (showTime) => {
-           return showTime.date >= today}
+            return showTime.date >= today
+        }
     );
     return validShowTimes
 }

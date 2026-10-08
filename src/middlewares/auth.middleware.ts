@@ -9,13 +9,13 @@ const authent = async (req: Request, res: Response, next: NextFunction) => {
     const token = req.cookies?.token
 
     if (!token)
-        return res.status(401).json({ msg: "unauthorized" })
+        return res.status(401).json({ msg: "unauthorized token" })
 
     try {
         const verfiy = await jwt.verify(token, process.env.secret as string)
 
         if (!verfiy)
-            return res.status(401).json({ msg: "unauthorized" })
+            return res.status(401).json({ msg: "unauthorized verfication"  })
 
         next()
 

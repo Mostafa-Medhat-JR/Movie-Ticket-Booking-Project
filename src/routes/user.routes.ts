@@ -9,10 +9,10 @@ export const userRouter = Router()
 userRouter.post("/signup",signiUp)
 userRouter.post("/login",signIn)
 userRouter.get("/movies",authent,getMovies)
-userRouter.get("/movies/:movie/showtimes/:id/",authent,checkMovie,showTimeExpiration,availableSeats)
+userRouter.get("/movies/:movie/showtimes/:id",authent,checkMovie,showTimeExpiration,availableSeats)
 userRouter.post("/movies/:movie/showtimes/:id/bookings",authent,checkMovie,showTimeExpiration,bookingTicket)
 userRouter.get("/bookings",authent,getBookingHistory)
-userRouter.get("/movies/:movie/showtimes",authent,getShowTimes)
+userRouter.get("/movies/:movie/showtimes",authent,checkMovie,getShowTimes)
 
 
 
