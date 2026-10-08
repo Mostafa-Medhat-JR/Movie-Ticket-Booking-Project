@@ -1,5 +1,6 @@
 import mongoose, { Schema } from "mongoose"
 import { movieSchema } from "./movie.model"
+import { seatsInCinema } from "../controllers/user.controller"
 
 const showtimeSchema = new mongoose.Schema({
 
@@ -55,8 +56,9 @@ const showtimeSchema = new mongoose.Schema({
     seats:
     {
         type:Map,
-        of:Boolean,
-        required:true
+        of:Boolean,default: () => new Map(
+        seatsInCinema.map(seat => [seat, true])
+    )
     }
 
 

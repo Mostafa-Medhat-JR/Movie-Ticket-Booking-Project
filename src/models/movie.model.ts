@@ -36,7 +36,7 @@ export const movieSchema = new mongoose.Schema({
 
     Ratings:
     {
-        type: String,
+        type: Number,
         required: true,
     }
 

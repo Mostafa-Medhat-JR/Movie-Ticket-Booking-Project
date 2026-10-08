@@ -7,7 +7,7 @@ import jwt from "jsonwebtoken"
 import "dotenv/config"
 import bcrypt from "bcrypt"
 
-const seatsInCinema: string[] = [
+export const seatsInCinema: string[] = [
     "A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "A9", "A10", "A11", "A12",
     "B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8", "B9", "B10", "B11", "B12",
     "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10", "C11", "C12",
@@ -19,6 +19,7 @@ const seatsInCinema: string[] = [
     "I1", "I2", "I3", "I4", "I5", "I6", "I7", "I8", "I9", "I10", "I11", "I12",
     "J1", "J2", "J3", "J4", "J5", "J6", "J7", "J8", "J9", "J10", "J11", "J12"
 ]
+ 
 
 const createToken = (email: string, role: string) => {
     return jwt.sign({
@@ -197,7 +198,7 @@ const bookingTicket = async (req: Request, res: Response) => {
 
         const bookedMovie = await Bookings.create({
             customer: customerData
-            , showtime: showTimeSelected,
+            , showtimeId: Number(showTimeSelected.showTimeID),
             selectedSeats: selectedSeats
             , totalPrice: totalPrice,
             bookingStatus: "Confirmed"
@@ -233,23 +234,7 @@ const getBookingHistory = async (req: Request, res: Response) => {
                 name: booking.customer?.name,
                 email: booking.customer?.email
             },
-            showtime: {
-                movie: booking.showtime?.movie,
-                hallNo: booking.showtime?.hallNo
-
-                ,
-                date: booking.showtime?.date
-
-                ,
-                startTime: booking.showtime?.startTime
-
-                ,
-                endTime: booking.showtime?.endTime
-                ,
-
-                ticketPrice: booking.showtime?.ticketPrice
-
-            },
+            showtimeId:booking.showtimeId,
             selectedSeats: booking.selectedSeats,
             totalPrice: booking.totalPrice,
             bookingStatus: booking.bookingStatus

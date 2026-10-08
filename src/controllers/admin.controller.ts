@@ -7,6 +7,7 @@ import jwt from "jsonwebtoken"
 import "dotenv/config"
 import bcrypt from "bcrypt"
 
+
 const addMovie = async (req: Request, res: Response) => {
     const movieContent = req.body
     try {
@@ -58,11 +59,12 @@ const removeMovie = async (req: Request, res: Response) => {
 const addShowTime = async (req: Request, res: Response) => {
 
     const showtimeBody = req.body
-    const date:Date= req.body.date
+    const date:Date= new Date(req.body.date) 
     date.setHours(0,0,0,0)
+
     try {
          const showtimeId: number = await ShowTime.countDocuments() + 1
-        const showTimeCreated = await ShowTime.create({ showTimeID: showtimeId, ...showtimeBody,date:date })
+        const showTimeCreated = await ShowTime.create({ showTimeID: showtimeId, ...showtimeBody,date:date})
         res.status(201).json({ msg: "the show time has been created sucessfully ", showTimeCreated })
     } catch (err) {
         console.log("there is an error in the server from the addShowTime in the admin controller fn and th error is " + err)

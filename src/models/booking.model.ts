@@ -10,9 +10,9 @@ export const bookingSchema = new mongoose.Schema({
        
     }
     ,
-    showtime:
+    showtimeId:
     {
-        type: showtimeSchema,
+        type: Number,
     
     }
     ,
