@@ -19,7 +19,7 @@ A production-ready RESTful API for a Movie Ticket Booking system built with **No
 
 ## System Architecture & Data Models
 
-* **User:** `fullName`, `email`, `password`, `role` (`Customer` | `Cinema Admin`)
+* **User:** `fullName`, `email`, `password`, `role` (`Customer` | `Admin`)
 * **Movie:** `title`, `genre`, `duration`, `description`, `posterUrl`, `rating`, `status`
 * **Showtime:** `movie`, `hallNumber`, `date`, `startTime`, `endTime`, `ticketPrice`, `totalCapacity`
 * **Booking:** `customer`, `showtime`, `selectedSeats`, `totalPrice`, `bookingStatus`
