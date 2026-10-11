@@ -34,7 +34,7 @@ const signiUp = async (req: Request, res: Response) => {
 
     const { name, email, password, role } = req.body
 
-    if (!name || !email || !password || !role)
+    if (!name || !email || !password)
         return res.status(400).json({ msg: "there is missing data in email or pass or name" })
 
     try {
@@ -64,7 +64,7 @@ const signIn = async (req: Request, res: Response) => {
 
     const { name, email, password } = req.body
 
-    if (!name || !email || !password)
+    if (!email || !password)
         return res.status(400).json({ msg: "there is a missing data in email or password or name" })
 
 
