@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { auth,authent } from "../middlewares/auth.middleware";
 import { checkMovie,showTimeExpiration } from "../middlewares/expirationandstateChecker";
-import { signIn,signiUp, getMovies, availableSeats, bookingTicket, getBookingHistory, getShowTimes  } from "../controllers/user.controller";
+import { signIn,signiUp, getMovies, availableSeats, bookingTicket, getBookingHistory, getShowTimes, cancelBooking  } from "../controllers/user.controller";
 
 
 export const userRouter = Router()
@@ -230,5 +230,5 @@ userRouter.get("/bookings",authent,getBookingHistory)
 
 userRouter.get("/movies/:movie/showtimes",authent,checkMovie,getShowTimes)
 
-
+userRouter.post("/booking/bookinId",authent,cancelBooking)
 
