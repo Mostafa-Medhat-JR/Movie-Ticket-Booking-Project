@@ -101,7 +101,6 @@ userRouter.post("/login",signIn)
 
 userRouter.get("/movies",authent,getMovies)
 
-
 /**
  * @openapi
  * /user/movies/{movie}/showtimes/{id}:
@@ -182,7 +181,6 @@ userRouter.get("/movies/:movie/showtimes/:id",authent,checkMovie,showTimeExpirat
 
 userRouter.post("/movies/:movie/showtimes/:id/bookings",authent,checkMovie,showTimeExpiration,bookingTicket)
 
-
 /**
  * @openapi
  * /user/bookings:
@@ -206,7 +204,6 @@ userRouter.post("/movies/:movie/showtimes/:id/bookings",authent,checkMovie,showT
  */
 
 userRouter.get("/bookings",authent,getBookingHistory)
-
 
 /**
  * @openapi

@@ -6,6 +6,7 @@ import { Bookings } from "../models/booking.model";
 import jwt from "jsonwebtoken"
 import "dotenv/config"
 import bcrypt from "bcrypt"
+import { resolve } from "node:dns";
 
 export const seatsInCinema: string[] = [
     "A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "A9", "A10", "A11", "A12",
@@ -191,12 +192,21 @@ const bookingTicket = async (req: Request, res: Response) => {
         if (!showTimeSelected)
             return res.status(400).json({ msg: "couldnot showtime pla enter a right hall number" })
 
+
         const token = req.cookies?.token
+        if(!token)
+            return res.status(404).json({msg:"token not found"})
+
         const tokenCanBeAcessed = jwt.verify(token, process.env.secret as string) as { email: string, role: string }
 
+        if(!tokenCanBeAcessed)
+            return res.status(400).json({msg:"inavlid token"})
+
         const customerData = await User.findOne({ email: tokenCanBeAcessed.email })
+                        
 
         const selectedSeats = req.body.selectedSeats
+        const bookId:number = await ShowTime.countDocuments() + 1
 
         for (const seat of selectedSeats) {
             if ((!showTimeSelected.seats.get(seat)) || (!seatsInCinema.includes(seat)))
@@ -211,6 +221,7 @@ const bookingTicket = async (req: Request, res: Response) => {
 
 
         const bookedMovie = await Bookings.create({
+            bookingId:bookId,
             customer: customerData
             , showtimeId: Number(showTimeSelected.showTimeID),
             selectedSeats: selectedSeats
@@ -248,7 +259,7 @@ const getBookingHistory = async (req: Request, res: Response) => {
         if (!customer)
             return res.status(404).json({ msg: "can't find user with this " })
 
-        const bookedShowtimes = await Bookings.find({ 'customer.email': customer?.email })
+        const bookedShowtimes = await Bookings.find({ 'customer.email': customer.email })
 
         if (bookedShowtimes.length === 0)
             return res.status(404).json({ msg: "there is no booking for this customer" })
@@ -276,6 +287,29 @@ const getBookingHistory = async (req: Request, res: Response) => {
 
 }
 
+const cancelBooking = async(req:Request,res:Response)=>{
+    const bookingId = Number(req.params.bookingId)
+
+    try{
+        const bookedShow = await Bookings.findOne({bookingId});
+        
+        if(!bookedShow)
+            return res.status(404).json({msg:"booking NOT FOUND :( 404"})
+
+        unbookSeats(res,bookedShow)
+
+        bookedShow.bookingStatus = "Cancelled"
+       const updatedBooking =  await bookedShow.save()
+       res.status(200).json({msg:"the booking Cancelled Successfully",updatedBooking})
+
+    }
+    catch(err){
+        console.log("there is an error in the server from the cancelBooking fn and th error is " + err)
+        res.status(500).json({ msg: "sorryy errrorr from the server :(" })
+    }
+
+
+}
 
 const validShows = (shows: any[]) => {
     const today = new Date();
@@ -288,7 +322,22 @@ const validShows = (shows: any[]) => {
     return validShowTimes
 }
 
+const unbookSeats = async(res:Response,booked:any)=>{
 
-export { signIn, signiUp, getMovies, availableSeats, bookingTicket, getBookingHistory, getShowTimes }
+    const showId = booked.showtimeId
+    const showTimeBooked = await ShowTime.findOne({showId})
+
+    if(!showTimeBooked)
+        return res.status(404).json({msg:"the showtime not found from this booking"})
+
+    for(const seat of booked.selectedSeats){
+        showTimeBooked.seats.set(seat,true)
+    }
+
+
+
+}
+
+export { signIn, signiUp, getMovies, availableSeats, bookingTicket, getBookingHistory, getShowTimes,cancelBooking }
 
 

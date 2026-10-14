@@ -36,16 +36,19 @@ import { showtimeSchema } from "./showingtime.model"
  */
 
 export const bookingSchema = new mongoose.Schema({
+
+    bookingId: { type: Number }
+    ,
     customer:
     {
         type: userSchema,
-       
+
     }
     ,
     showtimeId:
     {
         type: Number,
-    
+
     }
     ,
     selectedSeats:
@@ -58,14 +61,14 @@ export const bookingSchema = new mongoose.Schema({
     totalPrice:
     {
         type: Number,
-      
+
     }
     ,
     bookingStatus:
     {
         type: String,
-        enum:["Pending","Confirmed","Cancelled"],
-        default:"Pending"
+        enum: ["Pending", "Confirmed", "Cancelled"],
+        default: "Pending"
     }
 
 }, { strict: false })
