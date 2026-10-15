@@ -187,12 +187,6 @@ const bookingTicket = async (req: Request, res: Response) => {
 
     try {
 
-        const showTimeSelected = await ShowTime.findOne({ showTimeID: showTimeId })
-
-        if (!showTimeSelected)
-            return res.status(400).json({ msg: "couldnot showtime pla enter a right hall number" })
-
-
         const token = req.cookies?.token
         if(!token)
             return res.status(404).json({msg:"token not found"})
@@ -203,10 +197,15 @@ const bookingTicket = async (req: Request, res: Response) => {
             return res.status(400).json({msg:"inavlid token"})
 
         const customerData = await User.findOne({ email: tokenCanBeAcessed.email })
-                        
+        
+           const showTimeSelected = await ShowTime.findOne({ showTimeID: showTimeId })
+
+        if (!showTimeSelected)
+            return res.status(400).json({ msg: "couldnot showtime pls enter a right hall number" })
+
 
         const selectedSeats = req.body.selectedSeats
-        const bookId:number = await ShowTime.countDocuments() + 1
+        const bookId:number = await Bookings.countDocuments() + 1
 
         for (const seat of selectedSeats) {
             if ((!showTimeSelected.seats.get(seat)) || (!seatsInCinema.includes(seat)))
@@ -324,17 +323,16 @@ const validShows = (shows: any[]) => {
 
 const unbookSeats = async(res:Response,booked:any)=>{
 
-    const showId = booked.showtimeId
-    const showTimeBooked = await ShowTime.findOne({showId})
+    const showId =Number(booked.showtimeId)
+    //console.log("the id of show time params   is "+showId)
 
-    if(!showTimeBooked)
-        return res.status(404).json({msg:"the showtime not found from this booking"})
-
+    const showTimeBooked = await ShowTime.findOne({showTimeID:showId})
+    //console.log("the id of show time is "+showTimeBooked?.showTimeID)
     for(const seat of booked.selectedSeats){
-        showTimeBooked.seats.set(seat,true)
+        showTimeBooked?.seats.set(seat,true)
     }
 
-
+   await showTimeBooked?.save()
 
 }
 

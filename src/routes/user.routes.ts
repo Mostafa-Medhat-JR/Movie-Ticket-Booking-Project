@@ -230,5 +230,5 @@ userRouter.get("/bookings",authent,getBookingHistory)
 
 userRouter.get("/movies/:movie/showtimes",authent,checkMovie,getShowTimes)
 
-userRouter.post("/booking/bookinId",authent,cancelBooking)
+userRouter.post("/bookings/:bookingId",authent,cancelBooking)
 
