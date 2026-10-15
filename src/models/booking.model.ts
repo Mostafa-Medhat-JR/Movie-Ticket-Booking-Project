@@ -37,7 +37,7 @@ import { showtimeSchema } from "./showingtime.model"
 
 export const bookingSchema = new mongoose.Schema({
 
-    bookingId: { type: Number }
+    bookingId: { type:Number }
     ,
     customer:
     {

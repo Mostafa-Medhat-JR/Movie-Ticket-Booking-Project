@@ -205,7 +205,7 @@ const bookingTicket = async (req: Request, res: Response) => {
 
 
         const selectedSeats = req.body.selectedSeats
-        const bookId:number = await Bookings.countDocuments() + 1
+        const bookId = await Bookings.countDocuments() + 1
 
         for (const seat of selectedSeats) {
             if ((!showTimeSelected.seats.get(seat)) || (!seatsInCinema.includes(seat)))
@@ -290,16 +290,22 @@ const cancelBooking = async(req:Request,res:Response)=>{
     const bookingId = Number(req.params.bookingId)
 
     try{
-        const bookedShow = await Bookings.findOne({bookingId});
-        
+        const bookedShow = await Bookings.findOne({bookingId})
+
         if(!bookedShow)
             return res.status(404).json({msg:"booking NOT FOUND :( 404"})
 
-        unbookSeats(res,bookedShow)
+        if(bookedShow.bookingStatus === "Cancelled")
+            return res.status(400).json({msg:"the booking already cancelled"})
+
+        unbookSeats(bookedShow)
 
         bookedShow.bookingStatus = "Cancelled"
-       const updatedBooking =  await bookedShow.save()
-       res.status(200).json({msg:"the booking Cancelled Successfully",updatedBooking})
+        await bookedShow.save()
+
+       
+    
+       res.status(200).json({msg:"the booking Cancelled Successfully"})
 
     }
     catch(err){
@@ -321,9 +327,9 @@ const validShows = (shows: any[]) => {
     return validShowTimes
 }
 
-const unbookSeats = async(res:Response,booked:any)=>{
+const unbookSeats = async(booked:any)=>{
 
-    const showId =Number(booked.showtimeId)
+    const showId = Number(booked.showtimeId)
     //console.log("the id of show time params   is "+showId)
 
     const showTimeBooked = await ShowTime.findOne({showTimeID:showId})
