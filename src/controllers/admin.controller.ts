@@ -24,8 +24,18 @@ const editMovie = async (req: Request, res: Response) => {
     const movieTitle = req.params.movie as string
     try {
         const chosenMovie = await Movie.findOneAndUpdate({ title: movieTitle }, { $set: req.body }, { new: true, runValidators: true })
+        const showtimeToUpdate = await ShowTime.find({'movie.title':movieTitle})
+
         if (!chosenMovie)
             return res.status(404).json({ msg: "we couldnot fount a movie with that title plz enter a valid one" })
+
+
+        for(const show of showtimeToUpdate)
+        {   
+            show.movie = chosenMovie
+            show.save()
+        }
+
 
         res.status(200).json({ msg: "the moivie has been edited sucessfully ", chosenMovie })
     } catch (err) {
